@@ -1,4 +1,4 @@
-# Multi-Touring Route Recommendation considering spots and tourists fairness 
+# Dual Congestion-Aware Route Planning for Tourists by Multi-agent Reinforcement Learning.
 
 ## Environment
 gym  
