@@ -1,6 +1,6 @@
 # Multi-Touring Route Recommendation considering spots and tourists fairness 
 
-## 环境
+## Environment
 gym  
 numpy  
 matplotlib  
@@ -9,6 +9,17 @@ torch
 tqdm  
 geopy  
 
-## 使用说明
+Install independencies by
+```
+pip3 install -r requirements.txt
+```
 
-设置 Yahoo_data_path 读取Yahoo服务器数据，运行 PPO.py.
+## Route Planning Demo Execution
+```
+python3 PPO_routeGeneration.py 
+```
+
+## Training
+```
+python3 PPO.py 
+```
