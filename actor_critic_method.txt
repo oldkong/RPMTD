@@ -1,0 +1,46 @@
+将KONG WK的方法修改，得到稳定的状态转移。
+
+
+原本的额actor_critic方法中，需要得到一条轨迹，对于这条轨迹进行update。
+现在的方案： 选择最先UNfrozen的游客，获得 (state, action, next_state, reward)
+将不同游客的 (state, action, next_state, reward) 收集起来， 组成一个数据集。
+
+
+
+1. 收集数据
+
+                    action = agent.take_action(state)
+                    next_tourist_state, next_state, reward, done, _ = env.step(action)
+                    transition_dict['states'].append(state)
+                    transition_dict['actions'].append(action)
+                    transition_dict['next_states'].append(next_state)
+                    transition_dict['rewards'].append(reward)
+                    transition_dict['dones'].append(done)
+                    state = next_tourist_state
+
+
+
+2. update网络
+
+def update():
+    for i in range(batch_size):
+
+        states 
+        actions 
+        rewards 
+        next_states 
+        dones 
+
+        _td_target = rewards + self.gamma * self.critic(next_states) * (1 -dones) # [20,1]
+        _td_delta = td_target - self.critic(states)  # [20,1]
+        _log_probs = torch.log(self.actor(states).gather(1, actions)) # [20,1]
+        
+        torch.cat((td_target, _td_target),0)
+        td_delta.append(_td_delta)
+        log_probs.append(_log_probs)
+
+    actor_loss = torch.mean(-log_probs * td_delta.detach())
+
+
+feature:
+reward, cost_time, 是否被游览过，  

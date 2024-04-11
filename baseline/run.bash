@@ -1,0 +1,10 @@
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
+python test_dqn_static_reward.py
