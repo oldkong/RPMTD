@@ -19,7 +19,7 @@ pip3 install -r requirements.txt
 python3 PPO_routeGeneration.py 
 ```
 
-## Training
+## Model Training
 ```
 python3 PPO.py 
 ```
