@@ -25,11 +25,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 def gini(x):
-    # (Warning: This is a concise implementation, but it is O(n**2)
-    # in time and memory, where n = len(x).  *Don't* pass in huge
-    # samples!)
 
-    # Mean absolute difference
     mad = np.abs(np.subtract.outer(x, x)).mean()
     # Relative mean absolute difference
     rmad = mad/np.mean(x)
@@ -124,15 +120,8 @@ class PPO_model:
         if len(tourist.route_s) == 0:
             return tourist.startSpot
         
-        # elif len(tourist.route_s) == 1: # 在第二步的时候随机打散游客
-        #     a = random.randint(0,71)
-        #     while a == tourist.startSpot or a == tourist.endSpot or env.dis_s2s(env.spots[a].location,env.spots[tourist.startSpot].location)>5:
-        #         a = random.randint(0,71)
-        #     return a
-
         else:
             if tourist.remain_time > 10:
-                # 以10%的概率去性价比最高的spot
                 if np.random.rand() < 0.1:
                     r = np.cos((state[:,3]/state[:,0])*(0.5*math.pi))*state[:,1]
                     t = state[:,2] + state[:,4]
@@ -240,25 +229,19 @@ class PPO(DRLBase):
                     } for i_ in range(len(self.env.tourists))]
 
                     s_1 = self.env.reset(Yahoo_data_path = Yahoo_data_path) # 72 x 4
-                    # s_2 = np.ones(72,5)
-
-                    # for i in range(200): # 为每一个tourist补全state 《t_travel_time(t), t_remain_time(t), t_total_travel_time, t_起点， t_终点》
-                    #     for j in range()
                     
                     terminal = False
                     while not terminal:
                         a_list = []
 
-                        # 拿到每一个tourist的特征，并且得到action
                         for i_t in range(len(self.env.tourists)): 
                             _s_1 = np.copy(s_1)
                             s_2 = np.ones((72,3))
 
                             for j in range(72):
-                                # s_2[j][3] = 1 if j in self.env.tourists[i_t].route_s else -1 # 记录是否去过这个spot
-                                s_2[j][0] = 4*(self.env.calculateDistance(i_t,self.env.spots[j])/self.env.tourists[i_t].speed) # 第 i 个tourist到第 j 个spot 的时间
-                                s_2[j][1] = self.env.tourists[i_t].remain_time # 所剩时间
-                                s_2[j][2] = 32 # 游览总时间
+                                s_2[j][0] = 4*(self.env.calculateDistance(i_t,self.env.spots[j])/self.env.tourists[i_t].speed) 
+                                s_2[j][1] = self.env.tourists[i_t].remain_time 
+                                s_2[j][2] = 32 
                                 # s_2[j][4] = 1 if j == self.env.tourists[i_t].startSpot else 0
                                 # s_2[j][5] = 1 if j == self.env.tourists[i_t].endSpot else 0
 
@@ -276,25 +259,22 @@ class PPO(DRLBase):
                                 a  = self.model.take_action(s, mask, self.env.tourists[i_t],self.env)
                                 # a  = self.model.action_argmax(s, mask, self.env.tourists[i_t])
 
-                                while (a == self.env.tourists[i_t].endSpot and self.env.tourists[i_t].remain_time > 10) or a in self.env.tourists[i_t].route_s: # 避免刚开始就抽到endspot,以及重复spot
+                                while (a == self.env.tourists[i_t].endSpot and self.env.tourists[i_t].remain_time > 10) or a in self.env.tourists[i_t].route_s: 
                                     a  = self.model.take_action(s, mask, self.env.tourists[i_t],self.env)
                                     
                             else:
                                 a = None
                             a_list.append(a)
 
-                            transition_list[i_t]['states'].append(s) # 存入state
-                            transition_list[i_t]['actions'].append(a) # 存入action
+                            transition_list[i_t]['states'].append(s) 
+                            transition_list[i_t]['actions'].append(a) #
 
-
-                            ########## 查看做这个action的时候对应spot的人数比
                             if a == None:
                                 spot_ratio = None
                             else:
                                 spot_ratio = self.env.spots[a].num/self.env.spots[a].cMax if a != len(self.env.spots) else None
                             
                             self.env.tourists[i_t].info_before.append(spot_ratio)
-                            ##########
                         
 
                         next_s_1, rpd, r, done, congestion_reward_list = self.env.step(a_list)
@@ -312,15 +292,15 @@ class PPO(DRLBase):
 
                             for j in range(72):
                                 # next_s_2[j][3] = 1 if j in self.env.tourists[i_t].route_s else -1
-                                next_s_2[j][0] = 4*(self.env.calculateDistance(i_t,self.env.spots[j])/self.env.tourists[i_t].speed) # 第 i 个tourist到 第j 个spot 的时间
-                                next_s_2[j][1] = self.env.tourists[i_t].remain_time # 所剩时间
-                                next_s_2[j][2] = 32 # 游览总时间
+                                next_s_2[j][0] = 4*(self.env.calculateDistance(i_t,self.env.spots[j])/self.env.tourists[i_t].speed) 
+                                next_s_2[j][1] = self.env.tourists[i_t].remain_time 
+                                next_s_2[j][2] = 32 
                                 # next_s_2[j][4] = 1 if j == self.env.tourists[i_t].startSpot else 0
                                 # next_s_2[j][5] = 1 if j == self.env.tourists[i_t].endSpot else 0
                             
                             _route_s = self.env.tourists[i_t].route_s
                             for _s in _route_s:
-                                _next_s_1[_s][1] = 0.1 # 将去过的spot的分数设为很小的值
+                                _next_s_1[_s][1] = 0.1 
                             
                             # next_s = np.concatenate((_next_s_1,next_s_2),axis = 1)
                             next_s = np.concatenate((next_s_1,next_s_2),axis = 1)
@@ -467,7 +447,6 @@ timestamp=now.strftime('%Y.%m.%d_%H_%M')
 dir="visual"
 model = PPO()
 
-# model_name='PPO'
 epoch=int(num_episodes)
 # model.model.actor = torch.load('/home/y.kong/kyt_new/KYT_Route_recommendation/4615.pth')
 # model.model.actor = torch.load('./pre_trained_model_6783.pth')
@@ -475,10 +454,4 @@ epoch=int(num_episodes)
 # model.model.actor = torch.load('/home/s2120431/Multiple_Tourist_Route_Planning_with_Dual_Congestion/self_att.pth')
 
 model.train(epoch)
-# model.save_history(history, model_name+".csv")
-# print("-"*100, "\n", "-"*100, "\n", "-"*100, "\n")
-# model.load(filename='model/'+model_name+'.h5')
-# model.play()
-# te = time.time()
-# print("RUN TIME(s): ", te-ts)
 print('finish')
