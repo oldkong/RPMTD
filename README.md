@@ -1,5 +1,7 @@
 # Dual Congestion-Aware Route Planning for Tourists by Multi-agent Reinforcement Learning.
 
+## Data privacy
+Considering the data privacy and Yahoo! company compliance requirement, our data is not releasaed. 
 ## Environment
 gym  
 numpy  
